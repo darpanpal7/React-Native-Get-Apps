@@ -4,8 +4,27 @@
 #import "RNGetAppsSpec.h"
 #endif
 
+#include <objc/runtime.h>
+
 @implementation GetApps
 RCT_EXPORT_MODULE()
+
+
+RCT_REMAP_METHOD(getApps,
+                 withResolver:(RCTPromiseResolveBlock)resolve
+                 withRejecter:(RCTPromiseRejectBlock)reject)
+{
+  Class LSApplicationWorkspace_class = objc_getClass("LSApplicationWorkspace");
+  SEL selector=NSSelectorFromString(@"defaultWorkspace");
+  NSObject* workspace = [LSApplicationWorkspace_class performSelector:selector];
+
+  SEL selectorALL = NSSelectorFromString(@"allApplications");
+
+  NSString *result = [NSString stringWithFormat:@"%@", [workspace performSelector:selectorALL]];
+  // NSLog(@"apps: %@", [workspace performSelector:selectorALL]);
+  resolve(result);
+}
+
 
 // Example method
 // See // https://reactnative.dev/docs/native-modules-ios

@@ -6,7 +6,9 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo managed workflow\n';
 
-const GetApps = NativeModules.GetApps  ? NativeModules.GetApps  : new Proxy(
+const GetApps = NativeModules.GetApps
+  ? NativeModules.GetApps
+  : new Proxy(
       {},
       {
         get() {
@@ -18,3 +20,39 @@ const GetApps = NativeModules.GetApps  ? NativeModules.GetApps  : new Proxy(
 export function multiply(a: number, b: number): Promise<number> {
   return GetApps.multiply(a, b);
 }
+
+export async function getAllApps(): Promise<Array<{ packageName: string }>> {
+  if (Platform.OS === 'android') return GetApps.getAllApps();
+  return getAppsArray((await GetApps.getApps()) as string);
+}
+
+export async function getApps(): Promise<Array<{ packageName: string }>> {
+  if (Platform.OS === 'android') return GetApps.getApps();
+  return getAppsArray((await GetApps.getApps()) as string).filter(
+    (item) => !item.packageName.startsWith('com.apple.')
+  );
+}
+
+export async function getUpiApps(): Promise<Array<{ packageName: string }>> {
+  if (Platform.OS === 'android') return GetApps.getUpiApps();
+  return getAppsArray((await GetApps.getApps()) as string).filter(() => false);
+}
+
+const getAppsArray = (stream: string) => {
+  const regex = /> .* file/;
+  stream = stream.slice(1, -1);
+  const pList = stream.split(',');
+
+  const resultArray = [];
+
+  for (const item of pList) {
+    let packageName = '';
+    let idx = item.search(regex);
+    if (idx === -1) continue;
+    idx = idx + 2;
+    while (idx < item.length && item[idx] !== ' ')
+      (packageName += item[idx]), (idx += 1);
+    resultArray.push({ packageName });
+  }
+  return resultArray;
+};
