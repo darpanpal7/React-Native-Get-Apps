@@ -1,5 +1,7 @@
 # react-native-get-apps
+
 React Native package to get user installed applications
+
 ## Installation
 
 ```sh
@@ -9,11 +11,11 @@ npm install react-native-get-apps
 ## Usage
 
 ```js
-import { multiply } from "react-native-get-apps";
+import { getApps } from 'react-native-get-apps';
 
 // ...
 
-const result = await multiply(3, 7);
+const result = await getApps();
 ```
 
 ## Contributing
