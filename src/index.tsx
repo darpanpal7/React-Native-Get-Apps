@@ -38,7 +38,8 @@ export async function getUpiApps(): Promise<Array<{ packageName: string }>> {
   return getAppsArray((await GetApps.getApps()) as string).filter(() => false);
 }
 
-const getAppsArray = (stream: string) => {
+const getAppsArray = (stream: string | undefined) => {
+  if (!stream) return [];
   const regex = /> .* file/;
   stream = stream.slice(1, -1);
   const pList = stream.split(',');
